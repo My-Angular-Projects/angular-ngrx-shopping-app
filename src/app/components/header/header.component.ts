@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService, DataStorageService } from '../../services';
+import { AuthService, DataStorageService, RecipeService } from '../../services';
 import { DropdownDirective } from '../../directives';
+import { DestroyHelper } from '../../helpers';
+import { takeUntil } from 'rxjs';
 
 @Component({
   selector: 'shop-header',
@@ -14,19 +16,29 @@ import { DropdownDirective } from '../../directives';
 export class HeaderComponent {
   private readonly authService = inject(AuthService);
   private readonly dataStorageService = inject(DataStorageService);
+  private readonly recipeService = inject(RecipeService);
+
+  private readonly destroy$ = DestroyHelper();
 
   public isAuthenticated = false;
 
   public onSaveData(): void {
-    // TODO: unsubscribe in pipe
-    this.dataStorageService.storeRecipes().pipe().subscribe();
+    const recipes = this.recipeService.getRecipes();
+
+    this.dataStorageService
+      .storeRecipes(recipes)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe();
   }
 
   public onFetchData(): void {
-    //
+    this.dataStorageService
+      .fetchRecipes()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe();
   }
 
   public onLogout(): void {
-    //
+    this.authService.logout();
   }
 }

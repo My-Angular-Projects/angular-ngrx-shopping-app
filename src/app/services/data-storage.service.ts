@@ -14,9 +14,7 @@ export class DataStorageService {
   private readonly http = inject(HttpClient);
   private readonly recipeService = inject(RecipeService);
 
-  public storeRecipes(): Observable<IRecipe> {
-    const recipes = this.recipeService.getRecipes();
-
+  public storeRecipes(recipes: IRecipe[]): Observable<IRecipe> {
     return this.http.put<IRecipe>(API_URL, recipes);
   }
 
