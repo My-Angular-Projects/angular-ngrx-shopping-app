@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService, DataStorageService } from '../../services';
 
 @Component({
   selector: 'shop-header',
@@ -10,6 +11,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent {
+  private readonly authService = inject(AuthService);
+  private readonly dataStorageService = inject(DataStorageService);
+
   public isAuthenticated = false;
 
   public onSaveData(): void {
