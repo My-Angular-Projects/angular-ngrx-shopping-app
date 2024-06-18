@@ -4,6 +4,9 @@ import { map, Observable, tap } from 'rxjs';
 import { RecipeService } from './recipe.service';
 import { IRecipe } from '../types';
 
+export const API_URL =
+  'https://angular-test-fd57f-default-rtdb.firebaseio.com/recipes.json';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -11,36 +14,25 @@ export class DataStorageService {
   private readonly http = inject(HttpClient);
   private readonly recipeService = inject(RecipeService);
 
-  public storeRecipes(): void {
+  public storeRecipes(): Observable<IRecipe> {
     const recipes = this.recipeService.getRecipes();
 
-    this.http
-      .put(
-        'https://angular-test-fd57f-default-rtdb.firebaseio.com/recipes.json',
-        recipes,
-      )
-      .subscribe((response) => {
-        console.log(response);
-      });
+    return this.http.put<IRecipe>(API_URL, recipes);
   }
 
   public fetchRecipes(): Observable<IRecipe[]> {
-    return this.http
-      .get<
-        IRecipe[]
-      >('https://angular-test-fd57f-default-rtdb.firebaseio.com/recipes.json')
-      .pipe(
-        map((recipes) => {
-          return recipes.map((recipe) => {
-            return {
-              ...recipe,
-              ingredients: recipe.ingredients ? recipe.ingredients : [],
-            };
-          });
-        }),
-        tap((recipes) => {
-          this.recipeService.setRecipes(recipes);
-        }),
-      );
+    return this.http.get<IRecipe[]>(API_URL).pipe(
+      map((recipes: IRecipe[]) => {
+        return recipes.map((recipe: IRecipe) => {
+          return {
+            ...recipe,
+            ingredients: recipe.ingredients ? recipe.ingredients : [],
+          };
+        });
+      }),
+      tap((recipes: IRecipe[]) => {
+        this.recipeService.setRecipes(recipes);
+      }),
+    );
   }
 }
